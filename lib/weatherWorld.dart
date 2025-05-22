@@ -5,6 +5,18 @@ class weatherWorld extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            TextFormField(
+              decoration: InputDecoration(
+                hintText: 'Here you go',
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
