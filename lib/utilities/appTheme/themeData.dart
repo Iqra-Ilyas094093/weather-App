@@ -50,12 +50,11 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkBackground,
     cardColor: AppColors.darkCard,
     shadowColor: Colors.black54,
-    textTheme: GoogleFonts.interTextTheme(
+    textTheme:
       const TextTheme(
         bodyLarge: TextStyle(color: AppColors.darkPrimaryText),
         bodyMedium: TextStyle(color: AppColors.darkSecondaryText),
       ),
-    ),
     iconTheme: const IconThemeData(color: AppColors.darkPrimaryText),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
