@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:weather_app/model/weather_data_model/weather_data_model.dart';
 import 'package:weather_app/network/api%20helpe/api_helper.dart';
+import 'package:weather_app/views/currentWeatherScreen/currentWeatherScreen.dart';
 
 class mainScreen extends StatefulWidget {
   const mainScreen({super.key});
@@ -48,7 +49,7 @@ class _mainScreenState extends State<mainScreen> {
         position.longitude,
       );
       Placemark place = placeMark[0];
-      String location = '${place.administrativeArea}';
+      String location = '${place.locality}';
       currentLocation = location;
       setState(() {
         
@@ -70,26 +71,22 @@ class _mainScreenState extends State<mainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: FutureBuilder(
-          future: _currentWeather,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              print(snapshot.error);
-              return Text('Error Fetching data from server .');
-            }
-            if (snapshot.hasData) {
-              print(snapshot.data);
-              return SizedBox(
-                child: Text(snapshot.data!.current!.dewpointC.toString()),
-              );
-            }
-            return SizedBox();
-          },
-        ),
+      body: FutureBuilder(
+        future: _currentWeather,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            print(snapshot.error);
+            return Text('Error Fetching data from server .');
+          }
+          if (snapshot.hasData) {
+            print(snapshot.data);
+            return currentWeatherScreen();
+          }
+          return SizedBox();
+        },
       ),
     );
   }
