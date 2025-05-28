@@ -16,6 +16,7 @@ class _currentWeatherScreenState extends State<currentWeatherScreen> {
       body: Column(
         children: [
           Container(
+<<<<<<< HEAD
             height: height * 0.75,
             width: double.infinity,
             decoration: BoxDecoration(
@@ -33,10 +34,17 @@ class _currentWeatherScreenState extends State<currentWeatherScreen> {
                   // Color(0xFF0A2439),
                 ],
               ),
+=======
+            height: height * 0.7,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.blue,
+>>>>>>> f0c0023352a4562e3ef742de748c4e7cf94eda8c
               borderRadius: BorderRadius.circular(50),
             ),
             child: Column(
               children: [
+<<<<<<< HEAD
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0,right: 20,top: 35),
                   child: Row(
@@ -69,6 +77,24 @@ class _currentWeatherScreenState extends State<currentWeatherScreen> {
               ],
             ),
           ),
+=======
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Container(
+                    width: width*0.10,
+                    height: height*0.05,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(onPressed: (){}, icon: Icons.),
+                  )
+                ],)
+              ],
+            ),
+          )
+>>>>>>> f0c0023352a4562e3ef742de748c4e7cf94eda8c
         ],
       ),
     );

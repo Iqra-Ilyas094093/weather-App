@@ -71,6 +71,7 @@ class _mainScreenState extends State<mainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       body: FutureBuilder(
         future: _currentWeather,
         builder: (context, snapshot) {
@@ -87,6 +88,26 @@ class _mainScreenState extends State<mainScreen> {
           }
           return SizedBox();
         },
+=======
+      body: SafeArea(
+        child: FutureBuilder(
+          future: _currentWeather,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              print(snapshot.error);
+              return Text('Error Fetching data from server .');
+            }
+            if (snapshot.hasData) {
+              print(snapshot.data);
+              return currentWeatherScreen();
+            }
+            return SizedBox();
+          },
+        ),
+>>>>>>> f0c0023352a4562e3ef742de748c4e7cf94eda8c
       ),
     );
   }
