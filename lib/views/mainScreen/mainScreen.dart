@@ -6,14 +6,14 @@ import 'package:weather_app/model/weather_data_model/weather_data_model.dart';
 import 'package:weather_app/network/api%20helpe/api_helper.dart';
 import 'package:weather_app/views/currentWeatherScreen/currentWeatherScreen.dart';
 
-class mainScreen extends StatefulWidget {
-  const mainScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<mainScreen> createState() => _mainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _mainScreenState extends State<mainScreen> {
+class _MainScreenState extends State<MainScreen> {
   late Future<weatherdata> _currentWeather;
   String currentLocation = 'punjab';
   PermissionStatus? locationPermission;
@@ -24,7 +24,7 @@ class _mainScreenState extends State<mainScreen> {
       await _getCurrentLocation();
     } else if (locationPermission!.isDenied) {
       locationPermission = await Permission.location.request();
-    } else if (locationPermission!.isDenied) {
+    } else if (locationPermission!.isPermanentlyDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Permission is permanently denied'),
@@ -51,44 +51,24 @@ class _mainScreenState extends State<mainScreen> {
       Placemark place = placeMark[0];
       String location = '${place.locality}';
       currentLocation = location;
-      setState(() {
-        
-      });
+      setState(() {});
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Field to get location')));
-      throw Exception(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to get location')),
+      );
     }
   }
 
   @override
   void initState() {
-    _currentWeather = ApiHelper.fetchWeatherData(location: currentLocation);
     super.initState();
+    _currentWeather = ApiHelper.fetchWeatherData(location: currentLocation);
+    _checkPermission(); // optionally trigger location permission here
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
-      body: FutureBuilder(
-        future: _currentWeather,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            print(snapshot.error);
-            return Text('Error Fetching data from server .');
-          }
-          if (snapshot.hasData) {
-            print(snapshot.data);
-            return currentWeatherScreen();
-          }
-          return SizedBox();
-        },
-=======
       body: SafeArea(
         child: FutureBuilder(
           future: _currentWeather,
@@ -98,16 +78,15 @@ class _mainScreenState extends State<mainScreen> {
             }
             if (snapshot.hasError) {
               print(snapshot.error);
-              return Text('Error Fetching data from server .');
+              return Center(child: Text('Error fetching data from server.'));
             }
             if (snapshot.hasData) {
               print(snapshot.data);
-              return currentWeatherScreen();
+              return CurrentWeatherScreen();
             }
             return SizedBox();
           },
         ),
->>>>>>> f0c0023352a4562e3ef742de748c4e7cf94eda8c
       ),
     );
   }
