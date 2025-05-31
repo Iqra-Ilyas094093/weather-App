@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:weather_app/model/weather_data_model/weather_data_model.dart';
 import 'package:weather_app/network/api%20helpe/api_helper.dart';
+import 'package:weather_app/utilities/text/textUtils.dart';
 import 'package:weather_app/views/currentWeatherScreen/currentWeatherScreen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   late Future<weatherdata> _currentWeather;
   String currentLocation = 'punjab';
   PermissionStatus? locationPermission;
+  TextEditingController weatherController = TextEditingController();
 
   Future<void> _checkPermission() async {
     locationPermission = await Permission.location.request();
@@ -53,9 +55,9 @@ class _MainScreenState extends State<MainScreen> {
       currentLocation = location;
       setState(() {});
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to get location')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to get location')));
     }
   }
 
@@ -69,23 +71,52 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_on_outlined, color: Colors.red),
+                Text(currentLocation),
+              ],
+            ),
+            Text('Good Morning'),
+          ],
+        ),
+        actions: [Icon(Icons.search, color: Colors.blue)],
+      ),
       body: SafeArea(
-        child: FutureBuilder(
-          future: _currentWeather,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              print(snapshot.error);
-              return Center(child: Text('Error fetching data from server.'));
-            }
-            if (snapshot.hasData) {
-              print(snapshot.data);
-              return CurrentWeatherScreen();
-            }
-            return SizedBox();
-          },
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            TextFormField(
+              controller: weatherController,
+              decoration: InputDecoration(hintText: 'Search Weather'),
+            ),
+            _currentWeather == null
+                ? Center(child: CircularProgressIndicator())
+                : FutureBuilder(
+                  future: _currentWeather,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      print(snapshot.error);
+                      return Center(
+                        child: Text('Error fetching data from server.'),
+                      );
+                    }
+                    if (snapshot.hasData) {
+                      print(snapshot.data);
+                      return Column();
+                    }
+                    return SizedBox();
+                  },
+                ),
+          ],
         ),
       ),
     );
