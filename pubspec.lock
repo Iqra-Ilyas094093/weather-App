@@ -118,6 +118,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+<<<<<<< HEAD
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -126,6 +127,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.9.3"
+=======
+>>>>>>> e55b8595f5772af0b5e557db04f23ad6285e5e9b
   flutter_test:
     dependency: "direct dev"
     description: flutter
