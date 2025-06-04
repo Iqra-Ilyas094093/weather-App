@@ -11,25 +11,37 @@ import 'package:weather_app/views/weatherScreen/weatherScreen.dart';
 import 'package:weather_app/weatherWorld.dart';
 
 void main() {
-  runApp(ProviderScope(child: ScreenUtilInit(
-      designSize: Size(375, 812),
-      builder: (context,child)=>const MyApp(),)));
+  runApp(
+    ProviderScope(
+      child: ScreenUtilInit(
+        designSize: Size(375, 812),
+        builder: (context, child) => const MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeNotifierProvider);
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Weather App',
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: splashScreen(),
+      home: AnimatedSplashScreen(
+        splash: SizedBox(
+          height: 300,
+          width: 300,
+          child: Lottie.asset('assets/animations/windAnimation.json'),
+        ),
+        nextScreen: const weatherScreen(),
+        splashIconSize: 1900,
+      ),
     );
   }
 }
