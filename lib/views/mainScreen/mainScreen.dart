@@ -1,122 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:weather_app/model/weather_data_model/weather_data_model.dart';
-import 'package:weather_app/network/api%20helpe/api_helper.dart';
-import 'package:weather_app/utilities/text/textUtils.dart';
-import 'package:weather_app/views/currentWeatherScreen/currentWeatherScreen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:weather_app/views/mainWeatherUtility.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class mainScreen extends StatefulWidget {
+  final Map<String, dynamic> currentValue;
+  final String city;
+  final String country;
+  final List<dynamic> pastWeek;
+  final List<dynamic> next7days;
+
+  const mainScreen({
+    super.key,
+    required this.currentValue,
+    required this.city,
+    required this.pastWeek,
+    required this.next7days,
+    required this.country,
+  });
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<mainScreen> createState() => _mainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
-  late Future<weatherdata> _currentWeather;
-  String currentLocation = 'punjab';
-  PermissionStatus? locationPermission;
-  TextEditingController weatherController = TextEditingController();
-
-  Future<void> _checkPermission() async {
-    locationPermission = await Permission.location.request();
-    if (locationPermission!.isGranted) {
-      await _getCurrentLocation();
-    } else if (locationPermission!.isDenied) {
-      locationPermission = await Permission.location.request();
-    } else if (locationPermission!.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Permission is permanently denied'),
-          action: SnackBarAction(
-            label: 'Permission',
-            onPressed: () async {
-              await openAppSettings();
-            },
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      List<Placemark> placeMark = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-      Placemark place = placeMark[0];
-      String location = '${place.locality}';
-      currentLocation = location;
-      setState(() {});
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to get location')));
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _currentWeather = ApiHelper.fetchWeatherData(location: currentLocation);
-    _checkPermission(); // optionally trigger location permission here
-  }
-
+class _mainScreenState extends State<mainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      backgroundColor: Theme.of(context).primaryColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(12.w),
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/purplegradientbackground.jpg'),
+                // Your image path
+                fit: BoxFit.cover, // Fills the whole screen
+              ),
+            ),
+            child: Column(
               children: [
-                Icon(Icons.location_on_outlined, color: Colors.red),
-                Text(currentLocation),
+                Center(
+                  child: Column(
+                    children: [
+                      mainWeatherUtility(
+                        currentValue: widget.currentValue,
+                        city: widget.city,
+                        pastWeek: widget.pastWeek,
+                        next7days: widget.next7days,
+                        country: widget.country,
+                      ),
+                      Image.network(
+                        'https:${widget.currentValue['condition']?['icon'] ?? ''}',
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20.h,),
+                Text('next 7 days forecast',)
+
               ],
             ),
-            Text('Good Morning'),
-          ],
-        ),
-        actions: [Icon(Icons.search, color: Colors.blue)],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            TextFormField(
-              controller: weatherController,
-              decoration: InputDecoration(hintText: 'Search Weather'),
-            ),
-            _currentWeather == null
-                ? Center(child: CircularProgressIndicator())
-                : FutureBuilder(
-                  future: _currentWeather,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                      return Center(
-                        child: Text('Error fetching data from server.'),
-                      );
-                    }
-                    if (snapshot.hasData) {
-                      print(snapshot.data);
-                      return Column();
-                    }
-                    return SizedBox();
-                  },
-                ),
-          ],
+          ),
         ),
       ),
     );

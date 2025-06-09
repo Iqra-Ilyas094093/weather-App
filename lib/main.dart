@@ -6,9 +6,9 @@ import 'package:lottie/lottie.dart';
 import 'package:weather_app/utilities/appTheme/themeData.dart';
 import 'package:weather_app/view_model/theme_view_model/theme_provider.dart';
 import 'package:weather_app/views/mainScreen/mainScreen.dart';
+import 'package:weather_app/views/splash.dart';
 import 'package:weather_app/views/splashScreen.dart';
 import 'package:weather_app/views/weatherScreen/weatherScreen.dart';
-import 'package:weather_app/weatherWorld.dart';
 
 void main() {
   runApp(
@@ -39,7 +39,7 @@ class MyApp extends ConsumerWidget {
           width: 300,
           child: Lottie.asset('assets/animations/windAnimation.json'),
         ),
-        nextScreen: const weatherScreen(),
+        nextScreen: const splashScreen(),
         splashIconSize: 1900,
       ),
     );
