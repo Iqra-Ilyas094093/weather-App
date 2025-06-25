@@ -177,16 +177,7 @@ class _weatherScreenState extends ConsumerState<weatherScreen> {
           ),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/purplegradientbackground.jpg'),
-            // Your image path
-            fit: BoxFit.cover, // Fills the whole screen
-          ),
-        ),
+      body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: 5.h),
