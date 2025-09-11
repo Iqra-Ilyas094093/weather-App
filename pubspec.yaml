@@ -45,7 +45,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  fonts:
+    - family: 'SFProDisplay'
+      fonts:
+        - asset: assets/font/SFPRODISPLAYREGULAR.otf
   assets:
     - assets/
     - assets/animations/
     - assets/images/
+    - assets/components/
+    - assets/icons/
