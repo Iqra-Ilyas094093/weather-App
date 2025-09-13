@@ -3,7 +3,10 @@ import 'package:weather_app/views/screens/all.dart';
 
 void main() {
   runApp(
-    const MyApp(),
+    Center(child: SizedBox(
+        height: 844,
+        width: 390,
+        child: const MyApp())),
   );
 }
 

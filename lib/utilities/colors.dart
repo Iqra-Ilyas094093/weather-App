@@ -5,6 +5,7 @@ class AppColors{
   static Color purple = Color(0xFF5936B4);
   static Color darkPurple = Color(0xFF362A84);
   static Color greyPurple = Color(0xFF2E335A);
+  static Color lightPurple = Color(0xFF422E5A);
   static Color blackishPurple = Color(0xFF1C1B33);
   static Color bluish = Color(0xFF3658B1);
   static Color pinkish = Color(0xFFC159EC);

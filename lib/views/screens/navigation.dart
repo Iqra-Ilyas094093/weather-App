@@ -13,7 +13,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   int selectedIndex = 1;
-  final List<Widget> screens = [DetailsPage(), HomePage(), ForecasePage()];
+  final List<Widget> screens = [ForecasePage(), HomePage(), DetailsPage()];
 
   onTap(int index) {
     setState(() {
@@ -24,67 +24,68 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[selectedIndex],
-      bottomNavigationBar: Container(
-        height: 100,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.darkPurple, AppColors.purple],
-          ),
-        ),
-        // color: Colors.yellow,
-        child: Stack(
-          children: [
-            Positioned(
-              bottom: 0,
-              child: Image.asset(
-                'assets/components/bottomBarRect.png',
-                fit: BoxFit.cover,
-              ),
+      extendBody: true,
+      body: Stack(
+        children: [
+          screens[selectedIndex],
+          Positioned(
+            right: 0,
+            left: 0,
+            bottom: 0,
+            child: Image.asset(
+              'assets/components/bottomBarRect.png',
+              fit: BoxFit.cover,
             ),
-            Center(
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Center(
               child: Image.asset(
                 'assets/components/Subtract.png',
                 fit: BoxFit.fill,
               ),
             ),
-            Center(
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () => onTap(0),
                       icon: Image.asset(
                         'assets/icons/Map.png',
                         color: AppColors.primary,
                       ),
-
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () => onTap(1),
                       icon: CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.home,color: AppColors.purple,),
+                        child: Icon(Icons.home, color: AppColors.purple),
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
-                      icon:Image.asset(
+                      onPressed: () => onTap(2),
+                      icon: Image.asset(
                         'assets/icons/List.png',
                         color: AppColors.primary,
                       ),
-
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

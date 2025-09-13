@@ -32,9 +32,9 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Positioned(
-            bottom: 0,
+            bottom: 70,
             child: Container(
-              height: 250,
+              height: 280,
               width: size.width,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
@@ -98,7 +98,7 @@ class HomePage extends StatelessWidget {
                         shrinkWrap: true,
                         itemBuilder: (context,index){
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 20),
                         child: Container(
                           width: 70,
                           decoration: BoxDecoration(
