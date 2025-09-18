@@ -24,7 +24,7 @@ dependencies:
   lottie: ^3.3.1
 
   # Networking & Location
-  http: ^1.4.0
+  http: ^1.5.0
   permission_handler: ^12.0.0+1
   geolocator: ^14.0.0
   geocoding: ^3.0.0
