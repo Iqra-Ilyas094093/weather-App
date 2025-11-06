@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/views/screens/all.dart';
-
-import '../../utilities/colors.dart';
+import 'package:weather_app/views/screens/hourly_weather_page.dart';
+import 'package:weather_app/views/screens/location_page.dart';
+import 'package:weather_app/views/screens/weekly%20forecast.dart';
 import 'home_page.dart';
 
 class Navigation extends StatefulWidget {
@@ -12,8 +12,8 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  int selectedIndex = 1;
-  final List<Widget> screens = [ForecasePage(), HomePage(), DetailsPage()];
+  int selectedIndex = 0;
+  final List<Widget> screens = [WeatherHomePage(), HourlyWeatherPage(), SevenDayForecastPage(),ManageLocationsPage()];
 
   onTap(int index) {
     setState(() {
@@ -25,64 +25,74 @@ class _NavigationState extends State<Navigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: Stack(
+      bottomNavigationBar:  Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0A192F).withOpacity(0.8),
+          border: const Border(
+            top: BorderSide(color: Colors.white10),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                icon: Icons.thermostat,
+                label: 'Current',
+                isActive: true,
+                index: 0
+              ),
+              _buildNavItem(
+                icon: Icons.map,
+                label: 'Map',
+                isActive: false,
+                index: 1
+              ),
+              _buildNavItem(
+                icon: Icons.settings,
+                label: 'Settings',
+                isActive: false,
+                index: 2
+              ),_buildNavItem(
+                icon: Icons.settings,
+                label: 'Settings',
+                isActive: false,
+                index: 3
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: screens[selectedIndex],
+    );
+  }
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required int index,
+  }) {
+    return GestureDetector(
+      onTap: (){
+        onTap(index);
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          screens[selectedIndex],
-          Positioned(
-            right: 0,
-            left: 0,
-            bottom: 0,
-            child: Image.asset(
-              'assets/components/bottomBarRect.png',
-              fit: BoxFit.cover,
-            ),
+          Icon(
+            icon,
+            color: selectedIndex == index ? const Color(0xFF64FFDA) : const Color(0xFF8892B0),
+            size: 24,
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Image.asset(
-                'assets/components/Subtract.png',
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 20,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: () => onTap(0),
-                      icon: Image.asset(
-                        'assets/icons/Map.png',
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => onTap(1),
-                      icon: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.home, color: AppColors.purple),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => onTap(2),
-                      icon: Image.asset(
-                        'assets/icons/List.png',
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: selectedIndex == index ? const Color(0xFF64FFDA) : const Color(0xFF8892B0),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Manrope',
             ),
           ),
         ],

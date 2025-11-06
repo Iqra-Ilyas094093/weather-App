@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:weather_app/views/screens/all.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/view_model/currentWeather_view_model.dart';
+import 'package:weather_app/views/screens/navigation.dart';
 
 void main() {
   runApp(
@@ -13,36 +14,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    print(size.width);
-    print(size.height);
-    return ScreenUtilInit(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=>CurrentWeatherProvider()),
+      ],
       child: MaterialApp(
-        title: 'Flutter Weather App',
-        debugShowCheckedModeBanner: false,
-        // themeMode: themeMode,
+        title: 'Weather App',
         theme: ThemeData(
-          fontFamily: 'SFProDisplay',
+          useMaterial3: true,
+          fontFamily: 'Manrope',
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF137FEC),
+            brightness: Brightness.light,
+          ),
         ),
-        // darkTheme: darkTheme,
-        home: Center(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: size.height>932? 932:size.height,
-                maxWidth: size.width>400?400:size.width,
-              ),
-              child: Builder(
-                builder: (context) {
-                  final mq = MediaQuery.of(context);
-                  return MediaQuery(
-                      data: mq.copyWith(
-                        size: Size(size.width>400?400:size.width,size.height>932? 932:size.height),
-                        devicePixelRatio: mq.devicePixelRatio,
-                      ),
-                      child: Navigation());
-                }
-              )),
-        )
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          fontFamily: 'Manrope',
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF137FEC),
+            brightness: Brightness.dark,
+          ),
+        ),
+        home: const Navigation(),
       ),
     );
   }
