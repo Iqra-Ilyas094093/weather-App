@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/view_model/currentWeather_view_model.dart';
 import 'package:weather_app/views/screens/hourly_weather_page.dart';
 import 'package:weather_app/views/screens/location_page.dart';
 import 'package:weather_app/views/screens/weekly%20forecast.dart';
@@ -13,7 +15,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   int selectedIndex = 0;
-  final List<Widget> screens = [WeatherHomePage(), HourlyWeatherPage(), SevenDayForecastPage(),ManageLocationsPage()];
+
 
   onTap(int index) {
     setState(() {
@@ -23,6 +25,7 @@ class _NavigationState extends State<Navigation> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [WeatherHomePage(location: Provider.of<CurrentWeatherProvider>(context).searchController.text.toString(),), HourlyWeatherPage(location: Provider.of<CurrentWeatherProvider>(context).searchController.text.toString(),), SevenDayForecastPage(location: Provider.of<CurrentWeatherProvider>(context).searchController.text.toString(),),LocationPage()];
     return Scaffold(
       extendBody: true,
       bottomNavigationBar:  Container(
@@ -50,13 +53,13 @@ class _NavigationState extends State<Navigation> {
                 index: 1
               ),
               _buildNavItem(
-                icon: Icons.settings,
-                label: 'Settings',
+                icon: Icons.cloud,
+                label: 'Week',
                 isActive: false,
                 index: 2
               ),_buildNavItem(
-                icon: Icons.settings,
-                label: 'Settings',
+                icon: Icons.search,
+                label: 'Search',
                 isActive: false,
                 index: 3
               ),

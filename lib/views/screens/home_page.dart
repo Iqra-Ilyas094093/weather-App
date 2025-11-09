@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:weather_app/view_model/currentWeather_view_model.dart';
 
 class WeatherHomePage extends StatefulWidget {
-  const WeatherHomePage({super.key});
+  final String location;
+  const WeatherHomePage({super.key, required this.location});
 
   @override
   State<WeatherHomePage> createState() => _WeatherHomePageState();
@@ -15,7 +16,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
-      Provider.of<CurrentWeatherProvider>(context,listen: false).getWeatherDetails('france');
+      Provider.of<CurrentWeatherProvider>(context,listen: false).getWeatherDetails(widget.location);
     });
 
 
@@ -104,7 +105,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'H:${weatherVm.weatherDetails!['forecast']['forecastday'][0]['day']['maxtemp_c']}° L:62°',
+                          'H:${weatherVm.weatherDetails!['forecast']['forecastday'][0]['day']['maxtemp_c']}° L:${weatherVm.weatherDetails!['forecast']['forecastday'][0]['day']['mintemp_c']}°',
                           style: TextStyle(
                             color: const Color(0xFF8892B0),
                             fontSize: 18,
@@ -119,11 +120,11 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                   Column(
                     children: [
                       // Hourly Forecast
-                      _buildHourlyForecast(),
+                      _buildHourlyForecast(weatherVm.weatherDetails!),
                       const SizedBox(height: 24),
 
                       // Daily Forecast
-                      _buildDailyForecast(),
+                      _buildDailyForecast(weatherVm.weatherDetails!),
                       const SizedBox(height: 16),
 
                       // Weather Details
@@ -141,30 +142,13 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     );
   }
 
-  Widget _buildHourlyForecast() {
-    final hourlyData = [
-      {'time': 'Now', 'icon': Icons.wb_sunny, 'temp': '72°', 'isActive': true},
-      {
-        'time': '3 PM',
-        'icon': Icons.wb_cloudy,
-        'temp': '74°',
-        'isActive': false,
-      },
-      {
-        'time': '4 PM',
-        'icon': Icons.wb_cloudy,
-        'temp': '73°',
-        'isActive': false,
-      },
-      {'time': '5 PM', 'icon': Icons.cloud, 'temp': '71°', 'isActive': false},
-      {'time': '6 PM', 'icon': Icons.cloud, 'temp': '68°', 'isActive': false},
-      {
-        'time': '7 PM',
-        'icon': Icons.nightlight_round,
-        'temp': '66°',
-        'isActive': false,
-      },
-    ];
+  Widget _buildHourlyForecast(Map<String, dynamic> weatherDetails) {
+    final hourlyList = weatherDetails['forecast']['forecastday'][0]['hour'];
+
+    // Get the target location's current local time
+    final localTimeString = weatherDetails['location']['localtime'];
+    final localTime = DateTime.parse(localTimeString);
+    final localHour = localTime.hour;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,64 +167,56 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
         SizedBox(
           height: 120,
           child: ListView.builder(
-            shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: hourlyData.length,
+            itemCount: hourlyList.length,
             itemBuilder: (context, index) {
-              final item = hourlyData[index];
+              final hourlyItem = hourlyList[index];
+              final hourDateTime = DateTime.parse(hourlyItem['time']);
+              final isActive = hourDateTime.hour == localHour;
+
+              final hourLabel = isActive
+                  ? 'Now'
+                  : '${hourDateTime.hour.toString().padLeft(2, '0')}:00';
+
               return Container(
                 width: 80,
                 margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFF64FFDA).withOpacity(0.2)
+                      : const Color(0xFF3B4759),
+                  borderRadius: BorderRadius.circular(40),
+                ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color:
-                            item['isActive'] as bool
-                                ? const Color(0xFF64FFDA).withOpacity(0.2)
-                                : Colors.transparent,
-                        borderRadius: BorderRadius.circular(40),
+                    Text(
+                      hourLabel,
+                      style: TextStyle(
+                        color: isActive
+                            ? const Color(0xFF64FFDA)
+                            : const Color(0xFF8892B0),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Manrope',
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            item['time']!.toString(),
-                            style: TextStyle(
-                              color:
-                                  item['isActive'] as bool
-                                      ? const Color(0xFF64FFDA)
-                                      : const Color(0xFF8892B0),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Manrope',
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Icon(
-                            item['icon'] as IconData,
-                            color:
-                                item['isActive'] as bool
-                                    ? const Color(0xFF64FFDA)
-                                    : const Color(0xFFE6F1FF),
-                            size: 24,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            item['temp']!.toString(),
-                            style: TextStyle(
-                              color:
-                                  item['isActive'] as bool
-                                      ? const Color(0xFF64FFDA)
-                                      : const Color(0xFFE6F1FF),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Manrope',
-                            ),
-                          ),
-                        ],
+                    ),
+                    const SizedBox(height: 4),
+                    Image.network(
+                      'https:${hourlyItem['condition']['icon']}',
+                      width: 28,
+                      height: 28,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${hourlyItem['temp_c']}°',
+                      style: TextStyle(
+                        color: isActive
+                            ? const Color(0xFF64FFDA)
+                            : const Color(0xFFE6F1FF),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Manrope',
                       ),
                     ),
                   ],
@@ -253,34 +229,18 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     );
   }
 
-  Widget _buildDailyForecast() {
-    final dailyData = [
-      {
-        'day': 'Today',
-        'icon': Icons.wb_sunny,
-        'temp': 'H:75° L:62°',
-      },
-      {
-        'day': 'Tuesday',
-        'icon': Icons.wb_cloudy,
-        'temp': 'H:72° L:60°',
-      },
-      {
-        'day': 'Wednesday',
-        'icon': Icons.cloud,
-        'temp': 'H:70° L:58°',
-      },
-      {
-        'day': 'Thursday',
-        'icon': Icons.beach_access,
-        'temp': 'H:68° L:55°',
-      },
-      {
-        'day': 'Friday',
-        'icon': Icons.wb_sunny,
-        'temp': 'H:74° L:61°',
-      },
+
+  String _getWeekday(DateTime date) {
+    final weekdays = [
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
     ];
+    return weekdays[date.weekday % 7];
+  }
+
+
+  Widget _buildDailyForecast(Map<String, dynamic> weatherDetails) {
+    final dailyList = weatherDetails['forecast']['forecastday'];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -301,58 +261,60 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
-            children:
-                dailyData
-                    .map(
-                      (day) => Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 4.0,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    day['day']!.toString(),
-                                    style: TextStyle(
-                                      color: const Color(0xFFE6F1FF),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Manrope',
-                                    ),
-                                  ),
-                                ),
-                                Icon(
-                                  day['icon'] as IconData,
-                                  size: 24,
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    day['temp']!.toString(),
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      color: const Color(0xFFE6F1FF),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Manrope',
-                                    ),
-                                  ),
-                                ),
-                              ],
+            children: dailyList.map<Widget>((dayData) {
+              final date = DateTime.parse(dayData['date']);
+              final dayOfWeek = _getWeekday(date);
+              final maxTemp = dayData['day']['maxtemp_c'].toString();
+              final minTemp = dayData['day']['mintemp_c'].toString();
+              final iconUrl = dayData['day']['condition']['icon'];
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            dayOfWeek,
+                            style: TextStyle(
+                              color: const Color(0xFFE6F1FF),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Manrope',
                             ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
+                        Image.network(
+                          'https:$iconUrl',
+                          width: 30,
+                          height: 30,
+                        ),
+                        Expanded(
+                          child: Text(
+                            'H:$maxTemp° L:$minTemp°',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: const Color(0xFFE6F1FF),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Manrope',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],

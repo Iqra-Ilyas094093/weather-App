@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/view_model/currentWeather_view_model.dart';
+import 'package:intl/intl.dart';
 
-class SevenDayForecastPage extends StatelessWidget {
-  const SevenDayForecastPage({super.key});
+class SevenDayForecastPage extends StatefulWidget {
+  final String location;
+  const SevenDayForecastPage({super.key, required this.location});
 
   @override
+  State<SevenDayForecastPage> createState() => _SevenDayForecastPageState();
+}
+
+class _SevenDayForecastPageState extends State<SevenDayForecastPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Provider.of<CurrentWeatherProvider>(context,listen: false).getWeatherDetails(widget.location);
+    });
+  }
+  @override
   Widget build(BuildContext context) {
+    final weatherVm = Provider.of<CurrentWeatherProvider>(context);
     return Scaffold(
       backgroundColor: const Color(0xFF101922),
       body: SafeArea(
@@ -15,7 +33,7 @@ class SevenDayForecastPage extends StatelessWidget {
               _buildTopAppBar(),
 
               // Forecast List
-              _buildForecastList(),
+              _buildForecastList(weatherVm.weatherDetails!),
             ],
           ),
         ),
@@ -27,50 +45,18 @@ class SevenDayForecastPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: () {},
-            icon: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.transparent,
-              ),
-              child: const Icon(
-                Icons.menu,
-                color: Color(0xFFCBD5E1),
-                size: 24,
-              ),
-            ),
-          ),
-          const Expanded(
-            child: Text(
-              '7-Day Forecast',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color(0xFFE2E8F0),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Manrope',
-                letterSpacing: -0.015,
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.transparent,
-              ),
-              child: const Icon(
-                Icons.add,
-                color: Color(0xFFCBD5E1),
-                size: 24,
-              ),
+          Text(
+            '7-Day Forecast',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFFE2E8F0),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Manrope',
+              letterSpacing: -0.015,
             ),
           ),
         ],
@@ -78,80 +64,36 @@ class SevenDayForecastPage extends StatelessWidget {
     );
   }
 
-  Widget _buildForecastList() {
-    final forecastData = [
-      {
-        'day': 'Today',
-        'condition': 'Partly Cloudy',
-        'icon': Icons.cloud,
-        'iconColor': Colors.yellow,
-        'temp': '75° / 58°',
-        'isHighlighted': true,
-      },
-      {
-        'day': 'Tomorrow',
-        'condition': 'Sunny',
-        'icon': Icons.wb_sunny,
-        'iconColor': Colors.yellow,
-        'temp': '82° / 65°',
-        'isHighlighted': false,
-      },
-      {
-        'day': 'Wednesday',
-        'condition': 'Showers',
-        'icon': Icons.beach_access,
-        'iconColor': Colors.blue,
-        'temp': '72° / 60°',
-        'isHighlighted': false,
-      },
-      {
-        'day': 'Thursday',
-        'condition': 'Thunderstorms',
-        'icon': Icons.thunderstorm,
-        'iconColor': Colors.amber,
-        'temp': '70° / 55°',
-        'isHighlighted': false,
-      },
-      {
-        'day': 'Friday',
-        'condition': 'Cloudy',
-        'icon': Icons.cloud_queue,
-        'iconColor': Colors.grey,
-        'temp': '68° / 52°',
-        'isHighlighted': false,
-      },
-      {
-        'day': 'Saturday',
-        'condition': 'Sunny',
-        'icon': Icons.wb_sunny,
-        'iconColor': Colors.yellow,
-        'temp': '77° / 60°',
-        'isHighlighted': false,
-      },
-      {
-        'day': 'Sunday',
-        'condition': 'Light Rain',
-        'icon': Icons.grain,
-        'iconColor': Colors.blue,
-        'temp': '74° / 63°',
-        'isHighlighted': false,
-      },
-    ];
+  Widget _buildForecastList(Map<String,dynamic> weatherDetails) {
+    final forecastDays = weatherDetails['forecast']['forecastday'] as List;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: forecastData.length,
+      itemCount: forecastDays.length,
       itemBuilder: (context, index) {
-        final data = forecastData[index];
+        final dayData = forecastDays[index];
+        final date = DateTime.parse(dayData['date']);
+        final formattedDay = DateFormat('EEEE').format(date); // e.g. Thursday
+        final today = DateTime.now();
+        print(forecastDays.length);
+
+        final isToday = date.day == today.day &&
+            date.month == today.month &&
+            date.year == today.year;
+
+        final conditionText = dayData['day']['condition']['text'];
+        final iconUrl = "https:${dayData['day']['condition']['icon']}";
+        final maxTemp = dayData['day']['maxtemp_c'].round();
+        final minTemp = dayData['day']['mintemp_c'].round();
+
         return _buildForecastItem(
-          day: data['day'] as String,
-          condition: data['condition'] as String,
-          icon: data['icon'] as IconData,
-          iconColor: data['iconColor'] as Color,
-          temperature: data['temp'] as String,
-          isHighlighted: data['isHighlighted'] as bool,
+          day: isToday ? 'Today' : formattedDay,
+          condition: conditionText,
+          iconUrl: iconUrl, // 👈 we pass the actual image URL now
+          temperature: '$maxTemp° / $minTemp°',
+          isHighlighted: isToday,
         );
       },
     );
@@ -160,8 +102,7 @@ class SevenDayForecastPage extends StatelessWidget {
   Widget _buildForecastItem({
     required String day,
     required String condition,
-    required IconData icon,
-    required Color iconColor,
+    required String iconUrl,
     required String temperature,
     required bool isHighlighted,
   }) {
@@ -180,11 +121,7 @@ class SevenDayForecastPage extends StatelessWidget {
       child: Row(
         children: [
           // Weather Icon
-          Icon(
-            icon,
-            color: iconColor,
-            size: 32,
-          ),
+          Image.network(iconUrl,height: 32,width: 32,),
           const SizedBox(width: 16),
 
           // Day and Condition

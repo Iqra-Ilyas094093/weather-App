@@ -1,36 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Weather App',
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Manrope',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF137FEC),
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Manrope',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF137FEC),
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const WeatherLandingPage(),
-    );
-  }
-}
+import 'package:weather_app/views/screens/yourLocation_screen.dart';
 
 class WeatherLandingPage extends StatelessWidget {
   const WeatherLandingPage({super.key});
@@ -98,8 +67,6 @@ class WeatherLandingPage extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          const SizedBox(height: 20),
-
                           // Title
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -165,7 +132,9 @@ class WeatherLandingPage extends StatelessWidget {
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=>YourlocationScreen()));
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF137FEC),
                               foregroundColor: Colors.white,
@@ -199,7 +168,7 @@ class WeatherLandingPage extends StatelessWidget {
                             child: const Text(
                               'Already have an account? Log In',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Manrope',
                               ),
@@ -252,9 +221,11 @@ class FeatureCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               title,
+              maxLines: 2,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
+                overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Manrope',
               ),
@@ -262,9 +233,11 @@ class FeatureCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               description,
+              maxLines: 1,
               style: TextStyle(
                 color: const Color(0xFF92ADC9),
                 fontSize: 14,
+                overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.normal,
                 fontFamily: 'Manrope',
               ),

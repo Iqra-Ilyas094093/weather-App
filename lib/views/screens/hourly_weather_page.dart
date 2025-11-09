@@ -1,28 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/view_model/currentWeather_view_model.dart';
+import 'package:intl/intl.dart';
 
-class HourlyWeatherPage extends StatelessWidget {
-  const HourlyWeatherPage({super.key});
+class HourlyWeatherPage extends StatefulWidget {
+  final String location;
+  const HourlyWeatherPage({super.key, required this.location});
+
+  @override
+  State<HourlyWeatherPage> createState() => _HourlyWeatherPageState();
+}
+
+class _HourlyWeatherPageState extends State<HourlyWeatherPage> {
+
+
+
+  IconData _getWeatherIcon(String condition) {
+    final lower = condition.toLowerCase();
+    if (lower.contains('sun')) return Icons.wb_sunny;
+    if (lower.contains('cloud')) return Icons.cloud;
+    if (lower.contains('rain')) return Icons.beach_access;
+    if (lower.contains('snow')) return Icons.ac_unit;
+    return Icons.wb_cloudy;
+  }
+
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Provider.of<CurrentWeatherProvider>(context,listen: false).getWeatherDetails(widget.location);
+    });
+    // TODO: implement initState
+    super.initState();
+  }
+
+  String formatDate(String apiDate) {
+    final dateTime = DateTime.parse(apiDate); // Parse the yyyy-MM-dd format
+    final formatter = DateFormat('MMM d'); // Format to 'Nov 6'
+    return formatter.format(dateTime);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final weatherVm = Provider.of<CurrentWeatherProvider>(context);
+    final date = weatherVm.weatherDetails!['forecast']['forecastday'][0]['date'].toString();
+    final temp_c = weatherVm.weatherDetails!['current']['temp_c'];
+    final feel_like = weatherVm.weatherDetails!['current']['feelslike_c'];
+    final diff = feel_like - temp_c;
     return Scaffold(
       backgroundColor: const Color(0xFF101922),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: weatherVm.isLoading?Center(child: CircularProgressIndicator(),):SingleChildScrollView(
           child: Column(
             children: [
               // Top App Bar
               _buildTopAppBar(),
-          
+
               // Location and Date
-              _buildLocationDate(),
-          
+              _buildLocationDate(weatherVm.weatherDetails!['location']['name'].toString(),weatherVm.weatherDetails!['location']['country'].toString(),formatDate(date)),
+
               // Temperature Chart
-              _buildTemperatureChart(),
+              _buildTemperatureChart(temp_c.toString(),diff),
               SizedBox(height: 20,),
-          
+
               // Hourly Forecast List
-              _buildHourlyForecast(),
+              _buildHourlyForecast(weatherVm.weatherDetails!),
             ],
           ),
         ),
@@ -34,29 +76,27 @@ class HourlyWeatherPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.search, color: Color(0xFFF7FAFC), size: 24),
           ),
           const Spacer(),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu, color: Color(0xFFF7FAFC), size: 24),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildLocationDate() {
+  Widget _buildLocationDate(String city,String country,String date) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'New York, NY',
+            '$city, $country',
             style: TextStyle(
               color: const Color(0xFFF7FAFC),
               fontSize: 28,
@@ -66,7 +106,7 @@ class HourlyWeatherPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Today, Oct 26',
+            'Today, $date',
             style: TextStyle(
               color: const Color(0xFF92ADC9),
               fontSize: 16,
@@ -79,7 +119,7 @@ class HourlyWeatherPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTemperatureChart() {
+  Widget _buildTemperatureChart(String temp,double diff) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
@@ -100,7 +140,7 @@ class HourlyWeatherPage extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '15°C',
+                  '$temp°C',
                   style: TextStyle(
                     color: const Color(0xFFF7FAFC),
                     fontSize: 32,
@@ -124,7 +164,11 @@ class HourlyWeatherPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '+2°',
+                  diff > 0
+                      ? '+${diff.round()}°'
+                      : diff < 0
+                      ? '${diff.round()}°'
+                      : '',
                   style: TextStyle(
                     color: Colors.green,
                     fontSize: 16,
@@ -152,39 +196,47 @@ class HourlyWeatherPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHourlyForecast() {
-    final hourlyData = [
-      {'time': '1 PM', 'icon': Icons.cloud, 'temp': '15°C', 'precip': '20%', 'isActive': false},
-      {'time': '2 PM', 'icon': Icons.wb_sunny, 'temp': '16°C', 'precip': '15%', 'isActive': false},
-      {'time': '3 PM', 'icon': Icons.wb_sunny, 'temp': '17°C', 'precip': '10%', 'isActive': true},
-      {'time': '4 PM', 'icon': Icons.cloud, 'temp': '16°C', 'precip': '15%', 'isActive': false},
-      {'time': '5 PM', 'icon': Icons.cloud_queue, 'temp': '14°C', 'precip': '25%', 'isActive': false},
-      {'time': '6 PM', 'icon': Icons.beach_access, 'temp': '13°C', 'precip': '30%', 'isActive': false},
-    ];
+  Widget _buildHourlyForecast(Map<String, dynamic> weatherDetails) {
+    if (weatherDetails.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Extract hourly forecast from API
+    final forecastHours = weatherDetails['forecast']['forecastday'][0]['hour'];
+
+    // Extract location local time from API (accurate for that city)
+    final localTimeString = weatherDetails['location']['localtime'];
+    final localTime = DateTime.parse(localTimeString);
+    final localHour = localTime.hour;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SizedBox(
         height: 180,
         child: ListView.builder(
-          shrinkWrap: true,
-          // physics: NeverScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
-          itemCount: hourlyData.length,
+          itemCount: forecastHours.length,
           itemBuilder: (context, index) {
-            final data = hourlyData[index];
+            final hourData = forecastHours[index];
+
+            // Parse hour time from API
+            final forecastTime = DateTime.parse(hourData['time']);
+            final forecastHour = forecastTime.hour;
+
+            // Build each card dynamically
             return _buildHourCard(
-              time: data['time'] as String,
-              icon: data['icon'] as IconData,
-              temperature: data['temp'] as String,
-              precipitation: data['precip'] as String,
-              isActive: data['isActive'] as bool,
+              time: DateFormat('h a').format(forecastTime), // e.g. 3 PM
+              icon: _getWeatherIcon(hourData['condition']['text']),
+              temperature: '${hourData['temp_c']}°C',
+              precipitation: '${hourData['chance_of_rain']}%',
+              isActive: forecastHour == localHour, // highlight if same as local hour
             );
           },
         ),
       ),
     );
   }
+
 
   Widget _buildHourCard({
     required String time,

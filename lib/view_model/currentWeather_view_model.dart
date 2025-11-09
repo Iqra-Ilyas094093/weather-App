@@ -7,6 +7,7 @@ import 'package:weather_app/utilities/key.dart';
 import 'package:http/http.dart'as http;
 
 class CurrentWeatherProvider extends ChangeNotifier{
+  final TextEditingController searchController = TextEditingController();
   final ApiServices _apiServices = ApiServices();
   // Map<String,dynamic>? currentWeatherModel;
   Map<String,dynamic>? weatherDetails;
