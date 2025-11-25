@@ -12,7 +12,13 @@ class _LocationPageState extends State<LocationPage> {
 
   String _getWeekday(DateTime date) {
     final weekdays = [
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
     ];
     return weekdays[date.weekday % 7];
   }
@@ -29,26 +35,54 @@ class _LocationPageState extends State<LocationPage> {
               // Header Section
               _buildHeader(weatherVm),
 
-              searchController.text.isEmpty?SizedBox():weatherVm.isLoading?Center(child: CircularProgressIndicator()):Column(
-                children: [
+          searchController.text.isEmpty
+              ? SizedBox()
 
-                  // Current Weather Section
-                  _buildCurrentWeather(weatherVm.weatherDetails!),
-                  // Hourly Forecast
-                  _buildHourlyForecast(weatherVm.weatherDetails!),
+              : weatherVm.isLoading
+              ? Center(child: CircularProgressIndicator())
 
-                  // 7-Day Forecast
-                  _buildDailyForecast(weatherVm.weatherDetails!),
+              : weatherVm.error != null
+              ? Center(
+            child: Text(
+              weatherVm.error!,
+              style: TextStyle(color: Colors.red, fontSize: 18),
+            ),
+          )
 
-                  // Weather Details
-                  _buildWeatherDetails(weatherVm.weatherDetails!['current']['feelslike_c'].toString(),weatherVm.weatherDetails!['current']['wind_mph'].toString(),weatherVm.weatherDetails!['current']['humidity'].toString(),weatherVm.weatherDetails!['current']['uv'].toString(),weatherVm.weatherDetails!['current']['vis_km'].toString(),weatherVm.weatherDetails!['forecast']['forecastday'][0]['astro']['sunrise'].toString()),
+              : weatherVm.weatherDetails == null
+              ? Center(
+            child: Text(
+              "City not found. Please enter a valid location.",
+              style: TextStyle(color: Colors.red, fontSize: 18),
+            ),
+          )
 
-                  // Add some bottom padding for better scrolling
-                  const SizedBox(height: 20),
-                ],
-              )
-
+              : Column(
+            children: [
+              _buildCurrentWeather(weatherVm.weatherDetails!),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildHourlyForecast(weatherVm.weatherDetails!),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildDailyForecast(weatherVm.weatherDetails!),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildWeatherDetails(
+                  weatherVm.weatherDetails!['current']['feelslike_c'].toString(),
+                  weatherVm.weatherDetails!['current']['wind_mph'].toString(),
+                  weatherVm.weatherDetails!['current']['humidity'].toString(),
+                  weatherVm.weatherDetails!['current']['uv'].toString(),
+                  weatherVm.weatherDetails!['current']['vis_km'].toString(),
+                  weatherVm.weatherDetails!['forecast']['forecastday'][0]['astro']['sunrise'].toString(),
+                ),
+              ),
             ],
+          )
+
+          ],
           ),
         ),
       ),
@@ -58,14 +92,14 @@ class _LocationPageState extends State<LocationPage> {
   // ... rest of your methods remain exactly the same ...
   Widget _buildHeader(CurrentWeatherProvider weather) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 12,),
+              const SizedBox(height: 12),
               Text(
                 'Manage Locations',
                 textAlign: TextAlign.center,
@@ -76,10 +110,9 @@ class _LocationPageState extends State<LocationPage> {
                   fontFamily: 'Manrope',
                 ),
               ),
-
             ],
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.05),
@@ -87,11 +120,9 @@ class _LocationPageState extends State<LocationPage> {
             ),
             child: TextField(
               controller: searchController,
-              onSubmitted: (value){
+              onSubmitted: (value) {
                 weather.getWeatherDetails(value);
-                setState(() {
-
-                });
+                setState(() {});
               },
               decoration: InputDecoration(
                 hintText: 'Search for a city...',
@@ -106,15 +137,12 @@ class _LocationPageState extends State<LocationPage> {
               style: TextStyle(color: const Color(0xFFE6F1FF)),
             ),
           ),
-
-
-
         ],
       ),
     );
   }
 
-  Widget _buildCurrentWeather(Map<String,dynamic> weather) {
+  Widget _buildCurrentWeather(Map<String, dynamic> weather) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       child: Column(
@@ -137,8 +165,12 @@ class _LocationPageState extends State<LocationPage> {
           ),
 
           SizedBox(
-              height:120,
-              child: Image.network('https:${weather['current']['condition']['icon']}',fit: BoxFit.cover,)),
+            height: 120,
+            child: Image.network(
+              'https:${weather['current']['condition']['icon']}',
+              fit: BoxFit.cover,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             '${weather['current']['temp_c'].toString()}°',
@@ -203,17 +235,19 @@ class _LocationPageState extends State<LocationPage> {
               final hourDateTime = DateTime.parse(hourlyItem['time']);
               final isActive = hourDateTime.hour == localHour;
 
-              final hourLabel = isActive
-                  ? 'Now'
-                  : '${hourDateTime.hour.toString().padLeft(2, '0')}:00';
+              final hourLabel =
+                  isActive
+                      ? 'Now'
+                      : '${hourDateTime.hour.toString().padLeft(2, '0')}:00';
 
               return Container(
                 width: 80,
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
-                  color: isActive
-                      ? const Color(0xFF64FFDA).withOpacity(0.2)
-                      : const Color(0xFF3B4759),
+                  color:
+                      isActive
+                          ? const Color(0xFF64FFDA).withOpacity(0.2)
+                          : const Color(0xFF3B4759),
                   borderRadius: BorderRadius.circular(40),
                 ),
                 child: Column(
@@ -222,9 +256,10 @@ class _LocationPageState extends State<LocationPage> {
                     Text(
                       hourLabel,
                       style: TextStyle(
-                        color: isActive
-                            ? const Color(0xFF64FFDA)
-                            : const Color(0xFF8892B0),
+                        color:
+                            isActive
+                                ? const Color(0xFF64FFDA)
+                                : const Color(0xFF8892B0),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Manrope',
@@ -240,9 +275,10 @@ class _LocationPageState extends State<LocationPage> {
                     Text(
                       '${hourlyItem['temp_c']}°',
                       style: TextStyle(
-                        color: isActive
-                            ? const Color(0xFF64FFDA)
-                            : const Color(0xFFE6F1FF),
+                        color:
+                            isActive
+                                ? const Color(0xFF64FFDA)
+                                : const Color(0xFFE6F1FF),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Manrope',
@@ -281,67 +317,75 @@ class _LocationPageState extends State<LocationPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
-            children: dailyList.map<Widget>((dayData) {
-              final date = DateTime.parse(dayData['date']);
-              final dayOfWeek = _getWeekday(date);
-              final maxTemp = dayData['day']['maxtemp_c'].toString();
-              final minTemp = dayData['day']['mintemp_c'].toString();
-              final iconUrl = dayData['day']['condition']['icon'];
+            children:
+                dailyList.map<Widget>((dayData) {
+                  final date = DateTime.parse(dayData['date']);
+                  final dayOfWeek = _getWeekday(date);
+                  final maxTemp = dayData['day']['maxtemp_c'].toString();
+                  final minTemp = dayData['day']['mintemp_c'].toString();
+                  final iconUrl = dayData['day']['condition']['icon'];
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            dayOfWeek,
-                            style: TextStyle(
-                              color: const Color(0xFFE6F1FF),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Manrope',
-                            ),
-                          ),
-                        ),
-                        Image.network(
-                          'https:$iconUrl',
-                          width: 30,
-                          height: 30,
-                        ),
-                        Expanded(
-                          child: Text(
-                            'H:$maxTemp° L:$minTemp°',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              color: const Color(0xFFE6F1FF),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Manrope',
-                            ),
-                          ),
-                        ),
-                      ],
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
                     ),
-                  ),
-                ),
-              );
-            }).toList(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                dayOfWeek,
+                                style: TextStyle(
+                                  color: const Color(0xFFE6F1FF),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Manrope',
+                                ),
+                              ),
+                            ),
+                            Image.network(
+                              'https:$iconUrl',
+                              width: 30,
+                              height: 30,
+                            ),
+                            Expanded(
+                              child: Text(
+                                'H:$maxTemp° L:$minTemp°',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: const Color(0xFFE6F1FF),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Manrope',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildWeatherDetails(String feelLike,String windSpeed,String Humidity,String Uv,String visibility,String sunrise) {
+  Widget _buildWeatherDetails(
+    String feelLike,
+    String windSpeed,
+    String Humidity,
+    String Uv,
+    String visibility,
+    String sunrise,
+  ) {
     final detailsData = [
       {'label': 'Feels Like', 'value': '$feelLike°'},
       {'label': 'Wind Speed', 'value': '$windSpeed mph'},

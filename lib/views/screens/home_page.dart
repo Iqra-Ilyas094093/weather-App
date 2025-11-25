@@ -120,17 +120,26 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                   Column(
                     children: [
                       // Hourly Forecast
-                      _buildHourlyForecast(weatherVm.weatherDetails!),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildHourlyForecast(weatherVm.weatherDetails!),
+                      ),
                       const SizedBox(height: 24),
 
                       // Daily Forecast
-                      _buildDailyForecast(weatherVm.weatherDetails!),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildDailyForecast(weatherVm.weatherDetails!),
+                      ),
                       const SizedBox(height: 16),
 
                       // Weather Details
-                      _buildWeatherDetails(weatherVm.weatherDetails!['current']['feelslike_c'].toString(),weatherVm.weatherDetails!['current']['wind_mph'].toString(),weatherVm.weatherDetails!['current']['humidity'].toString(),weatherVm.weatherDetails!['current']['uv'].toString(),weatherVm.weatherDetails!['current']['vis_km'].toString(),weatherVm.weatherDetails!['forecast']['forecastday'][0]['astro']['sunrise'].toString()),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildWeatherDetails(weatherVm.weatherDetails!['current']['feelslike_c'].toString(),weatherVm.weatherDetails!['current']['wind_mph'].toString(),weatherVm.weatherDetails!['current']['humidity'].toString(),weatherVm.weatherDetails!['current']['uv'].toString(),weatherVm.weatherDetails!['current']['vis_km'].toString(),weatherVm.weatherDetails!['forecast']['forecastday'][0]['astro']['sunrise'].toString()),
+                      ),
                       const SizedBox(
-                        height: 80,
+                        height: 20,
                       ), // Space for bottom navigation
                     ],
                   ),
